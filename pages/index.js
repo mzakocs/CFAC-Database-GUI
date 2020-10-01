@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from "react";
 import Head from "next/head";
 import MaterialTable, { MTableEditRow } from "material-table";
-import { Paper, Typography, makeStyles } from "@material-ui/core";
+import {
+  Typography,
+} from "@material-ui/core";
 import tableIcons from "../theme/TableIcons";
 import axios from "axios";
 import Loader from "react-loader-spinner";
+import DetailPanel from "../components/DetailPanel";
 
 export default function Home() {
-  let [data, setData] = useState([]);
-  let [isLoaded, setIsLoaded] = useState(false);
-  let [isError, setIsError] = useState(false);
+  const [data, setData] = useState([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isError, setIsError] = useState(false);
+  console.log(data)
   useEffect(() => {
     // Loads the data using axios
     async function fetchData() {
@@ -58,6 +62,7 @@ export default function Home() {
             },
             actionsColumnIndex: -1,
           }}
+          detailPanel={(rowData) => <DetailPanel rowData={rowData} setData={setData}/>}
           editable={{
             onRowAdd: (newData) =>
               new Promise((resolve) => {
@@ -93,16 +98,20 @@ export default function Home() {
               }),
             onRowDelete: (oldData) =>
               new Promise((resolve) => {
-                console.log(oldData)
+                console.log(oldData);
                 try {
-                  axios.delete("/api/calculators", {params: {_id: oldData._id}}).then((response) => {
-                    resolve();
-                    setData((prevState) => {
-                      const data = [...prevState];
-                      data.splice(data.indexOf(oldData), 1);
-                      return data;
+                  axios
+                    .delete("/api/calculators", {
+                      params: { _id: oldData._id },
+                    })
+                    .then((response) => {
+                      resolve();
+                      setData((prevState) => {
+                        const data = [...prevState];
+                        data.splice(data.indexOf(oldData), 1);
+                        return data;
+                      });
                     });
-                  });
                 } catch (error) {
                   console.log(error);
                   setIsError(true);
